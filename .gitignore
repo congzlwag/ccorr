@@ -1,0 +1,42 @@
+# Ignore Python bytecode files
+__pycache__/
+*.py[cod]
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore Jupyter Notebook kernel connection files
+*.kernel.json
+
+# Ignore Jupyter Notebook execution records
+*.ipynb_checkpoints/
+
+# Ignore Jupyter Notebook output files
+*.nbconvert/
+
+# Ignore virtual environment folders (example: virtualenv, pipenv)
+venv/
+env/
+.venv/
+.virtualenv/
+pipenv/
+
+# Ignore local development settings
+.local/
+
+# Ignore system and IDE-specific files
+.DS_Store
+.vscode/
+.idea/
+
+# Ignore any other specific files or directories relevant to your project
+*.npz
+*.pickle
+*.ipynb
+
+# Ignore compiled Cython files (if applicable)
+*.so
+
+# Ignore build and distribution files
+build/
+dist/
