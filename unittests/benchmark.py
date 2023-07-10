@@ -120,10 +120,6 @@ def custom_cCoeffNormed_run(img, dtemp_vec,
 	return ccoeffmap
 
 def compare_result_ccoeffmaps(m1, m2, title=None):
-	def cm2extent(cm): 
-		d = cm.shape
-		return (-(d[1]//2)-0.5, d[1]-(d[1]//2)-0.5, 
-				-(d[0]//2)-0.5, d[0]-(d[0]//2)-0.5)
 	f2, axs = plt.subplots(1,3,sharey=True,
 		                  figsize=(8,2.5))
 	for ax, m in zip(axs, [m1,m2]):
@@ -171,7 +167,11 @@ def blemish(img, artifacts, badpxs):
 		imgb[roi] *= 0
 	return imgb
 
-
+def cm2extent(cm): 
+		d = cm.shape
+		return (-(d[1]//2)-0.5, d[1]-(d[1]//2)-0.5, 
+				-(d[0]//2)-0.5, d[0]-(d[0]//2)-0.5)
+    
 def report(method_name, config, tic, toc0, toc1):
 	print(f"\t{method_name}, {config}:")
 	print(f"\tInit. time = {(toc0-tic)*1e3:1.2g}ms; Total time = {((toc1-tic)*1e3):1.2g} ms")
