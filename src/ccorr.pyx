@@ -23,7 +23,7 @@ def cCorrNormedW(const double[:,:] im, const double[:] temp_vec, const double va
                  const int[:] cols, const int[:] rows,
                  wdtype[:] mask, int max_disp=30, int cx=0, int cy=0):
     """
-    Calculate cross-correlation between image and template, in a limited ROI of displacement k. This is the bad-pixel-tolerant version of cv.TM_CCORR_NORMED [See: https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#gga3a7850640f1fe1f58fe91a2d7583695dac6677e2af5e0fae82cc5339bfaef5038], and in order to be able to handle NAN on the bad pixels, I have to abandon FFT and do the convolution in the image space.
+    Calculate cross-correlation between image and template, in a limited ROI of displacement k. This is the bad-pixel-tolerant version of cv.TM_CCOEFF_NORMED [See: https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#gga3a7850640f1fe1f58fe91a2d7583695dac6677e2af5e0fae82cc5339bfaef5038], and in order to be able to handle NAN on the bad pixels, I have to abandon FFT and do the convolution in the image space.
     
     Parameters:
     np.ndarray[double, ndim=2] im: the image, must be 2D
