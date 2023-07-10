@@ -1,20 +1,35 @@
 # ccorr
 Cross-correlator with mask and robust to NAN
 
-This is a variant of [cv2.TM_CCOEFF_NORMED](https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#gga3a7850640f1fe1f58fe91a2d7583695dac6677e2af5e0fae82cc5339bfaef5038).
-Sometimes there are NAN values in the image and/or the template, 
-and this cross-correlator ignores the NAN values in any averaging in the calculation of the cross correlation coefficient.
-In order to handle NAN, it has to abandon FFT and do the convolution in the image space.
-Compare to `cv2.matchTemplate`, here are the pros and cons
-| Pros                        | Cons |
-| ---- | ---- |
-| More accurate with proper   | Slower |
-| small displacement  | a |
+The core function is `ccorr.cCorrNormedW`, a variant of [cv2.TM_CCOEFF_NORMED](https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#gga3a7850640f1fe1f58fe91a2d7583695dac6677e2af5e0fae82cc5339bfaef5038).
+Here is an overview of the comparison
+| | `ccorr.cCorrNormedW`    | `cv2.matchTemplate` |
+| ---- | ------------------ | ------------------- |
+| If there's NAN in the image | Ignores NAN | Breaks |
+| Implementation | Overlap-add  | (maybe?) DFT   |
+| Range of interest  | Controlled with parameter `dMax` | Prescribed by the shapes of image and template|
+| dtype | float64 | float32 |
+| Weight in inner-product | $M^2$ | $M$ |
 
-see the output from `benchmark.py`
+Sometimes there are NAN values in the image and/or the template, sometimes we assign NAN to the locales of imaging artifacts to avoid underestimating the displacement of the pattern of interest. 
+`ccorr.cCorrNormedW` is robust to the NAN pixels by ignoring them in any averaging:
+$$\mu(f(x',y'), M) \equiv \sum_{(x',y')\in S} f(x',y')M(x',y')\mathbb{1}[f(x',y')\neq \mathrm{NAN}] / \sum_{(x',y')\in S} M(x',y')\mathbb{1}[f(x',y')\neq \mathrm{NAN}]$$
+where $M(x',y')$ is the weight mask, sharing the same shape as the template, and $S$ is the support of $M$. 
+From the definition of weighted average above, it is also clear that ignoring NAN is different from assigning NAN as 0.
+NAN pixels in the template can be simply dropped by the weight mask, but in order to handle NAN in the image, `ccorr.cCorrNormedW` has to abandon FFT and do the convolution in the overlap-add way. 
+$$R(x,y) = \frac{\mu(\Delta T(x',y') \Delta I(x+x',y+y'), M)}{\sqrt{\mu(\Delta T(x',y') ^2, M)\mu(\Delta I(x+x',y+y') ^2, M)}}~,$$
+which also allows us to specify the $(x,y)$ of interest. 
+In contrast, `cv2.matchTemplate` computes at all valid $(x,y)$. 
 
-The underlying implementation invokes openmp to multi-thread in cython. See [this](https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html) for general practices of parallelization in cython.
+Indeed if there's no NAN pixel at all, `cv2.matchTemplate` is one order of magnitude faster than `ccorr.cCorrNormedW` at the scale of 200x200 template for 40x40 displacement, but `ccorr.cCorrNormedW` is more accurate when there are imaging artifacts. 
+`benchmark.py` compares the performance of `ccorr.cCorrNormedW` to `cv2.matchTemplate` quantitatively.
 
-## FAQ
-### Why are there NAN in the first place?
-Aside from readout errors, it is common that there are bad pixels or artifacts that are fixed in the image space. These structures can cheat a plain cross-correlator to bias the displacement estimation towards 0.
+## Build
+    python setup.py build_ext --inplace
+
+The underlying implementation invokes openmp to multi-thread in Cython. 
+See [this](https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html) for general practices of parallelization in cython. 
+
+## Functions
+In addition, there're `ccorr.quadfit` and `ccorr.calc_ellipse_scale2` to further analyze the maximum and the confidence ellipsoid based on the cross-correlation coefficient map.
+Detailed docstring is written in the functions, e.g. `print(ccorr.cCorrNormedW.__doc__)` .
