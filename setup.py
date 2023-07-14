@@ -13,8 +13,13 @@ if os.name == 'posix' and os.uname().machine =='arm64':
         os.environ["CC"] = gcc_fname[0]
     print(f"CC = {os.environ.get('CC')}")
 
+cargs = ["-fopenmp"]
+# cargs[0] = "-openmp" # on Windows with Visual C/C++ compiler
+
 extensions = [Extension("ccorr",["src/ccorr.pyx"], 
-                        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")])]
+                        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+                        extra_compile_args=cargs,
+                        extra_link_args=cargs)]
 
 setup(
     name="ccorr",

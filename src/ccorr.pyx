@@ -1,7 +1,5 @@
 # cython: boundscheck=False, wraparound=False, cdivision=True
 #cython: language_level=3
-# distutils: extra_compile_args=-fopenmp
-# distutils: extra_link_args=-fopenmp
 
 cimport cython
 import numpy as np
