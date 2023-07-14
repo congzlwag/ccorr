@@ -18,16 +18,17 @@ where $M(x',y')$ is the weight mask, sharing the same shape as the template, and
 From the definition of weighted average above, it is also clear that ignoring NAN is different from assigning NAN as 0.
 NAN pixels in the template can be simply dropped by the weight mask, but in order to handle NAN in the image, `ccorr.cCorrNormedW` has to abandon FFT and do the convolution in the overlap-add way. 
 $$R(x,y) = \frac{\mu(\Delta T(x',y') \Delta I(x+x',y+y'), M)}{\sqrt{\mu(\Delta T(x',y') ^2, M)\mu(\Delta I(x+x',y+y') ^2, M)}}~,$$
-which also allows us to specify the $(x,y)$ of interest. 
-In contrast, `cv2.matchTemplate` computes at all valid $(x,y)$. 
+where $\Delta f(x',y') \equiv f(x',y') - \mu(f(x',y'), M)$. It also allows us to specify the $(x,y)$ of interestm, while `cv2.matchTemplate` computes at all valid $(x,y)$ prescribed by the shapes. 
 
 Indeed if there's no NAN pixel at all, `cv2.matchTemplate` is one order of magnitude faster than `ccorr.cCorrNormedW` at the scale of 200x200 template for 40x40 displacement, but `ccorr.cCorrNormedW` is more accurate when there are imaging artifacts. 
+On OSX M1 Pro, the contrast is 3ms vs 58ms. 
+In fact, `cv2.matchTemplate` is the most efficient 2D cross-correlator in python I can find, comparing to other existing implementations, e.g. `scipy.signal.correlate2d`, the speed of `ccorr.cCorrNormedW` is not too slow. 
 `benchmark.py` compares the performance of `ccorr.cCorrNormedW` to `cv2.matchTemplate` quantitatively.
 
 ## Build
     python setup.py build_ext --inplace
 
-The underlying implementation invokes openmp to multi-thread in Cython. 
+The underlying implementation invokes openmp to multi-thread in Cython, so the building process is a bit OS-dependent. 
 See [this](https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html) for general practices of parallelization in cython. 
 
 ## Functions
