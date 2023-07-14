@@ -28,8 +28,9 @@ In fact, `cv2.matchTemplate` is the most efficient 2D cross-correlator in python
 ## Build
     python setup.py build_ext --inplace
 
-The underlying implementation invokes openmp to multi-thread in Cython, so the building process is a bit OS-dependent. 
+The underlying implementation invokes openmp to multi-thread in Cython. 
 See [this](https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html) for general practices of parallelization in cython. 
+Troubleshoot `setup.py` if there is an error about the `-fopenmp` option in the building process. It is known that Microsoft Visual C/C++ compiler takes `-openmp` instead. 
 
 ## Functions
 In addition, there're `ccorr.quadfit` and `ccorr.calc_ellipse_scale2` to further analyze the maximum and the confidence ellipsoid based on the cross-correlation coefficient map.
